@@ -1,0 +1,22 @@
+{
+    "scenario": "reorg",
+    "enable_v2": true,
+    "enable_adaptive_safety": true,
+    "enable_bridge_observer": true,
+    "chain": "polygon",
+    "oracle_sensitivity": 0.5,
+    "oracle_decay_rate": 0.1,
+    "oracle_high_risk_delay_s": 64.0,
+    "sequencer_base_delay_s": 2.0,
+    "reorg_mode": "probabilistic",
+    "sweep": {
+        "N": [
+            21
+        ],
+        "reorg_mtbf_s": [
+            0.0
+        ],
+        "runs_per_setting": 50
+    },
+    "out_csv": "result/phase9_polygon_lowrisk.csv"
+}

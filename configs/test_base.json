@@ -1,0 +1,8 @@
+{
+    "chain": "base",
+    "scenario": "deposit",
+    "timeout_s": 250.0,
+    "runs_per_setting": 1,
+    "enable_v2": true,
+    "leader_id": 0
+}

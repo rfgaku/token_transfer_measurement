@@ -1,0 +1,57 @@
+{
+    "enable_v2": true,
+    "enable_hyperbft": true,
+    "enable_bridge_observer": false,
+    "scenario": "withdraw",
+    "timeout_s": 300.0,
+    "dispute_ref_s": 200.0,
+    "network": {
+        "latency": {
+            "p2p_base_s": 0.05,
+            "p2p_jitter_s": 0.02
+        },
+        "partitions": [
+            [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+            ],
+            [
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+            ]
+        ]
+    },
+    "bridge_dispute_period_s": 220.0,
+    "bridge_relay_delay_mu": 1.7,
+    "bridge_relay_delay_sigma": 1.0,
+    "sweep": {
+        "N": [
+            21
+        ],
+        "quorum_ratio": [
+            0.6666
+        ],
+        "byz_frac": [
+            0.0
+        ],
+        "runs_per_setting": 5
+    },
+    "out_csv": "result/attack_partition_test.csv"
+}

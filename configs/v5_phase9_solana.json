@@ -1,0 +1,21 @@
+{
+    "scenario": "reorg",
+    "enable_v2": true,
+    "enable_adaptive_safety": true,
+    "enable_bridge_observer": true,
+    "chain": "solana",
+    "oracle_sensitivity": 2.0,
+    "oracle_decay_rate": 0.2,
+    "sequencer_base_delay_s": 0.4,
+    "reorg_mode": "probabilistic",
+    "sweep": {
+        "N": [
+            21
+        ],
+        "reorg_mtbf_s": [
+            20.0
+        ],
+        "runs_per_setting": 50
+    },
+    "out_csv": "result/phase9_solana.csv"
+}
