@@ -149,4 +149,5 @@ This project is for research purposes.
 
 ## Author / 著者
 
-Created for Professor Fujiwara's research on cross-chain bridge latency analysis.
+Created for Professor Fujihara's research on cross-chain bridge latency analysis.
+
