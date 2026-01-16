@@ -1,3 +1,0 @@
-"""
-Arbitrum adapter implementation.
-"""

@@ -1,7 +1,44 @@
-.env
+# Git Ignore for Token Transfer Measurement Simulator
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
 Thumbs.db
-venv/
-env/
+
+# Simulation output (user-generated)
+result/
+
+# Archive/Legacy code
+old/
+
+# Environment variables
+.env
+.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.log
+
+# Internal tools (not for public)
+.agent/
+generate_final_report.py

@@ -15,6 +15,10 @@ from sim.network import Network
 from sim.sequencer import Sequencer
 from sim.bridge import BridgeConsensus, BridgeObserver
 
+# Phase 2: 物理モデルコンポーネント
+from sim.network_physics import NetworkPhysics
+from sim.hyperliquid_validator import HyperliquidValidator, PhysicalBridgeConsensus
+
 # --- Patching BridgeObserver for Uniform Randomness (Permanent Fix) ---
 class PatchedBridgeObserver(BridgeObserver):
     def __init__(self, env, node_id, config, consensus_engine):
@@ -303,15 +307,359 @@ def run_simulation_auto(args):
         print(f"[Auto] Withdraw Histogram saved to {hist_wd_name}")
 
 
+def run_simulation_physics(args):
+    """
+    Phase 3: 物理モデルによるシミュレーション完全版
+
+    Deposit + Withdraw 両方をシミュレート:
+    - NetworkPhysics: 地理的レイテンシを考慮したネットワーク
+    - HyperliquidValidator: 独立したバリデータエージェント
+    - PhysicalBridgeConsensus: 物理的なVote到達時間計測 + QCブロードキャスト
+    - ArbitrumBatcher: L1バッチ投稿物理シミュレーション
+    - L1ToL2Relayer: Dispute Period + リレー遅延
+    """
+    from sim.arbitrum_batcher import ArbitrumBatcher, L1ToL2Relayer
+
+    # 0. Result Directory Setup
+    RESULT_DIR = "result"
+    os.makedirs(RESULT_DIR, exist_ok=True)
+
+    # 1. Configuration Setup（完全版）
+    TOTAL_TXS = args.tx_count if args.tx_count else 1000
+    N = args.N  # デフォルト21
+
+    # シミュレーション時間を十分に確保
+    # Withdraw: 最後のTX投入(1+0.2*1000=201s) + Batcher待機(300s) + L1確定(36s) + Dispute(200s) + α
+    SIMULATION_TIME = max(1000.0, TOTAL_TXS * 0.3 + 600)
+
+    cfg = {
+        # Global
+        "chain": args.chain,
+        "N": N,
+        "quorum_ratio": args.quorum,
+        "simulation_time_limit": SIMULATION_TIME,
+
+        # Bridge Deposit (TUNING TARGET)
+        "bridge_poll_interval_mu": args.poll_interval,
+        "bridge_poll_interval_sigma": 0.5,
+        "validator_sign_delay_min": 0.01,
+        "validator_sign_delay_max": 0.05,
+
+        # RPC Endpoint (Arbitrum側)
+        "_rpc_endpoint_id": 0,
+
+        # Withdraw: Batcher パラメータ（物理要件）
+        "batcher_size_threshold_kb": 120.0,  # 120KB閾値
+        "batcher_max_wait_s": 300.0,  # 5分タイムアウト
+        "l1_block_time_s": 12.0,  # Ethereumブロック時間
+        "l1_confirmations": 2,  # 確定までのブロック数
+
+        # Withdraw: Dispute Period（実測値合わせ）
+        "bridge_dispute_period_s": 200.0,  # ★重要: 200秒
+        "relay_latency_mu_s": 1.0,
+        "relay_latency_sigma_s": 0.3,
+
+        # Logging
+        "enable_validator_logging": args.verbose,
+        "enable_consensus_logging": args.verbose,
+        "enable_batcher_logging": args.verbose,
+        "enable_relayer_logging": args.verbose,
+
+        # Scenario
+        "cross_chain_tx_interval": 0.2,
+    }
+
+    # 2. Export Parameters
+    param_filename = os.path.join(RESULT_DIR, "simulation_parameters_physics.csv")
+    with open(param_filename, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Parameter", "Value"])
+        for k, v in cfg.items():
+            if not k.startswith("_"):
+                writer.writerow([k, v])
+    print(f"[Physics] Parameters exported to {param_filename}")
+
+    # 3. Simulation Environment
+    env = simpy.Environment()
+    rng = random.Random(42)
+
+    # ========================================
+    # DEPOSIT コンポーネント
+    # ========================================
+
+    # 4. 物理ネットワーク初期化
+    print(f"[Physics] Initializing NetworkPhysics with N={N} (US=7, EU=7, APAC=7)")
+    network = NetworkPhysics(
+        env=env,
+        N=N,
+        rng=rng,
+        enable_logging=args.verbose,
+        jitter_ratio=0.1,
+    )
+
+    # 5. コンセンサスエンジン初期化
+    consensus = PhysicalBridgeConsensus(env=env, N=N, config=cfg, network_physics=network)
+
+    # 6. バリデータ初期化（N個の独立エージェント）
+    print(f"[Physics] Initializing {N} validators...")
+    validators = []
+    for i in range(N):
+        v = HyperliquidValidator(
+            env=env,
+            node_id=i,
+            network_physics=network,
+            consensus_engine=consensus,
+            config=cfg,
+            rng=random.Random(42 + i),
+        )
+        validators.append(v)
+
+    # ========================================
+    # WITHDRAW コンポーネント
+    # ========================================
+
+    # 7. ArbitrumBatcher初期化
+    print(f"[Physics] Initializing ArbitrumBatcher (threshold={cfg['batcher_size_threshold_kb']}KB, max_wait={cfg['batcher_max_wait_s']}s)")
+    batcher = ArbitrumBatcher(
+        env=env,
+        config=cfg,
+        network_physics=network,
+        rng=random.Random(100),
+    )
+
+    # 8. L1ToL2Relayer初期化
+    print(f"[Physics] Initializing L1ToL2Relayer (dispute_period={cfg['bridge_dispute_period_s']}s)")
+    relayer = L1ToL2Relayer(
+        env=env,
+        config=cfg,
+        network_physics=network,
+        rng=random.Random(200),
+    )
+
+    # ========================================
+    # DATA COLLECTION
+    # ========================================
+
+    # Deposit用
+    deposit_records = {}
+    deposit_finalized = []
+
+    def on_deposit_finalized(tx_id, finalize_time):
+        if tx_id in deposit_records:
+            submit_ts = deposit_records[tx_id]["submit_ts"]
+            latency = finalize_time - submit_ts
+            deposit_records[tx_id]["finalize_time"] = finalize_time
+            deposit_records[tx_id]["latency"] = latency
+            deposit_finalized.append(tx_id)
+
+    consensus.on_deposit_finalized = on_deposit_finalized
+
+    # Withdraw用
+    withdraw_records = {}
+    withdraw_finalized = []
+
+    def on_withdraw_finalized(tx_id, finalize_time):
+        # tx_id は 10001〜 を使用（Depositと区別）
+        if tx_id in withdraw_records:
+            submit_ts = withdraw_records[tx_id]["submit_ts"]
+            latency = finalize_time - submit_ts
+            withdraw_records[tx_id]["finalize_time"] = finalize_time
+            withdraw_records[tx_id]["latency"] = latency
+            withdraw_finalized.append(tx_id)
+
+    relayer.on_withdraw_finalized = on_withdraw_finalized
+
+    # Batcher -> Relayer 接続
+    def on_batch_posted(tx_id, submit_time, l1_confirm_time):
+        relayer.start_relay(tx_id, l1_confirm_time, submit_time)
+
+    batcher.on_batch_posted = on_batch_posted
+
+    # ========================================
+    # TRAFFIC GENERATION
+    # ========================================
+
+    # Deposit Traffic
+    def traffic_gen_deposit():
+        yield env.timeout(1.0)  # 初期化待ち
+        for i in range(1, TOTAL_TXS + 1):
+            tx_id = i
+            submit_ts = env.now
+            deposit_records[tx_id] = {"submit_ts": submit_ts}
+
+            # コンセンサスエンジンにDeposit通知
+            consensus.notify_deposit(tx_id, submit_ts, {"amount": 100})
+
+            yield env.timeout(cfg["cross_chain_tx_interval"])
+
+    # Withdraw Traffic
+    def traffic_gen_withdraw():
+        yield env.timeout(1.0)  # 初期化待ち
+        for i in range(1, TOTAL_TXS + 1):
+            tx_id = 10000 + i  # Depositと区別（10001〜）
+            submit_ts = env.now
+            withdraw_records[tx_id] = {"submit_ts": submit_ts}
+
+            # BatcherにWithdraw投入
+            batcher.submit_withdrawal(tx_id, submit_ts, size_bytes=1500)
+
+            yield env.timeout(cfg["cross_chain_tx_interval"])
+
+    env.process(traffic_gen_deposit())
+    env.process(traffic_gen_withdraw())
+
+    # ========================================
+    # SIMULATION EXECUTION
+    # ========================================
+
+    print(f"[Physics] Running Simulation (N={N}, Poll={args.poll_interval}s, TXs={TOTAL_TXS} Deposit + {TOTAL_TXS} Withdraw)...")
+    print(f"[Physics] Simulation Time Limit: {SIMULATION_TIME}s")
+    env.run(until=cfg["simulation_time_limit"])
+
+    # ========================================
+    # RESULTS PROCESSING - DEPOSIT
+    # ========================================
+
+    deposit_results = []
+    for tx_id in sorted(deposit_finalized):
+        rec = deposit_records.get(tx_id, {})
+        if "latency" in rec:
+            deposit_results.append({
+                "tx_id": tx_id,
+                "timestamp": rec["submit_ts"],
+                "t_total_latency": rec["latency"],
+                "status": "Finalized",
+            })
+
+    # Export Deposit Trace CSV
+    trace_dep_filename = os.path.join(RESULT_DIR, "sim_trace_deposit_physics.csv")
+    with open(trace_dep_filename, "w", newline="") as f:
+        fieldnames = ["tx_id", "timestamp", "t_total_latency", "status"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for r in deposit_results:
+            row = {k: f"{v:.4f}" if isinstance(v, float) else v for k, v in r.items()}
+            writer.writerow(row)
+    print(f"[Physics] Deposit Trace saved to {trace_dep_filename}")
+
+    # Deposit Statistics
+    dep_latencies = [r["t_total_latency"] for r in deposit_results]
+    if dep_latencies:
+        dep_mean = statistics.mean(dep_latencies)
+        dep_std = statistics.stdev(dep_latencies) if len(dep_latencies) > 1 else 0
+        print(f"\n[Physics] === DEPOSIT Results ===")
+        print(f"  Finalized TXs: {len(deposit_finalized)}/{TOTAL_TXS}")
+        print(f"  Mean Latency: {dep_mean:.2f}s")
+        print(f"  Std Dev: {dep_std:.2f}s")
+        print(f"  Min: {min(dep_latencies):.2f}s, Max: {max(dep_latencies):.2f}s")
+
+        # Deposit Histogram
+        plt.figure(figsize=(10, 6))
+        plt.hist(dep_latencies, bins=30, edgecolor='black', alpha=0.7, color='skyblue')
+        plt.axvline(x=11.5, color='red', linestyle='--', linewidth=2, label='Measured Avg (11.5s)')
+        plt.axvline(x=dep_mean, color='green', linestyle='-', linewidth=2, label=f'Simulated Avg ({dep_mean:.2f}s)')
+        plt.title(f"[Physics Model] Deposit Latency Distribution (N={N})\nMean: {dep_mean:.2f}s, Std: {dep_std:.2f}s")
+        plt.xlabel("Latency (s)")
+        plt.ylabel("Frequency")
+        plt.legend()
+        plt.grid(axis='y', alpha=0.5)
+        hist_dep_filename = os.path.join(RESULT_DIR, "histogram_deposit_physics.png")
+        plt.savefig(hist_dep_filename)
+        plt.close()
+        print(f"[Physics] Deposit Histogram saved to {hist_dep_filename}")
+
+    # ========================================
+    # RESULTS PROCESSING - WITHDRAW
+    # ========================================
+
+    withdraw_results = []
+    for tx_id in sorted(withdraw_finalized):
+        rec = withdraw_records.get(tx_id, {})
+        if "latency" in rec:
+            withdraw_results.append({
+                "tx_id": tx_id,
+                "timestamp": rec["submit_ts"],
+                "t_total_latency": rec["latency"],
+                "status": "Finalized",
+            })
+
+    # Export Withdraw Trace CSV
+    trace_wd_filename = os.path.join(RESULT_DIR, "sim_trace_withdraw_physics.csv")
+    with open(trace_wd_filename, "w", newline="") as f:
+        fieldnames = ["tx_id", "timestamp", "t_total_latency", "status"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for r in withdraw_results:
+            row = {k: f"{v:.4f}" if isinstance(v, float) else v for k, v in r.items()}
+            writer.writerow(row)
+    print(f"[Physics] Withdraw Trace saved to {trace_wd_filename}")
+
+    # Withdraw Statistics
+    wd_latencies = [r["t_total_latency"] for r in withdraw_results]
+    if wd_latencies:
+        wd_mean = statistics.mean(wd_latencies)
+        wd_std = statistics.stdev(wd_latencies) if len(wd_latencies) > 1 else 0
+        print(f"\n[Physics] === WITHDRAW Results ===")
+        print(f"  Finalized TXs: {len(withdraw_finalized)}/{TOTAL_TXS}")
+        print(f"  Mean Latency: {wd_mean:.2f}s")
+        print(f"  Std Dev: {wd_std:.2f}s")
+        print(f"  Min: {min(wd_latencies):.2f}s, Max: {max(wd_latencies):.2f}s")
+        print(f"  (Expected: ~230s = Batcher wait + L1 confirm + Dispute 200s)")
+
+        # Withdraw Histogram
+        plt.figure(figsize=(10, 6))
+        plt.hist(wd_latencies, bins=30, edgecolor='black', alpha=0.7, color='salmon')
+        plt.axvline(x=230, color='red', linestyle='--', linewidth=2, label='Expected Avg (~230s)')
+        plt.axvline(x=wd_mean, color='green', linestyle='-', linewidth=2, label=f'Simulated Avg ({wd_mean:.2f}s)')
+        plt.title(f"[Physics Model] Withdraw Latency Distribution\nMean: {wd_mean:.2f}s, Std: {wd_std:.2f}s\n(Dispute Period: {cfg['bridge_dispute_period_s']}s)")
+        plt.xlabel("Latency (s)")
+        plt.ylabel("Frequency")
+        plt.legend()
+        plt.grid(axis='y', alpha=0.5)
+        hist_wd_filename = os.path.join(RESULT_DIR, "histogram_withdraw_physics.png")
+        plt.savefig(hist_wd_filename)
+        plt.close()
+        print(f"[Physics] Withdraw Histogram saved to {hist_wd_filename}")
+
+    # ========================================
+    # COMPONENT STATISTICS
+    # ========================================
+
+    cons_stats = consensus.get_statistics()
+    batcher_stats = batcher.get_statistics()
+    relayer_stats = relayer.get_statistics()
+
+    print(f"\n[Physics] === Consensus Statistics ===")
+    print(f"  Finalized: {cons_stats.get('finalized_count', 0)}")
+    print(f"  Vote Spread Mean: {cons_stats.get('vote_spread_mean_ms', 0):.1f}ms")
+    print(f"  Vote Spread Std: {cons_stats.get('vote_spread_std_ms', 0):.1f}ms")
+
+    print(f"\n[Physics] === Batcher Statistics ===")
+    print(f"  Posted Batches: {batcher_stats.get('posted_count', 0)}")
+    print(f"  Total TXs: {batcher_stats.get('total_txs', 0)}")
+    print(f"  Avg Batch Size: {batcher_stats.get('avg_batch_size_kb', 0):.1f}KB")
+    print(f"  Avg L1 Latency: {batcher_stats.get('avg_l1_latency_s', 0):.1f}s")
+
+    print(f"\n[Physics] === Relayer Statistics ===")
+    print(f"  Completed: {relayer_stats.get('completed_count', 0)}")
+    print(f"  Avg Total Latency: {relayer_stats.get('avg_total_latency_s', 0):.1f}s")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Automated Simulator Runner")
     parser.add_argument("--chain", type=str, default="arbitrum")
-    parser.add_argument("--N", type=int, default=100)
-    parser.add_argument("--poll_interval", type=float, default=5.0)
+    parser.add_argument("--N", type=int, default=21, help="Number of validators (default: 21 for Hyperliquid)")
+    parser.add_argument("--poll_interval", type=float, default=16.0, help="Polling interval in seconds (default: 16.0 for ~11.5s deposit latency)")
     parser.add_argument("--quorum", type=float, default=0.67)
     parser.add_argument("--tx_count", type=int, default=1000)
     parser.add_argument("--tuned", action="store_true", help="Use tuned filename suffix")
     parser.add_argument("--corrected", action="store_true", help="Use corrected filename suffix and logic")
-    
+    parser.add_argument("--physics", action="store_true", help="Use Phase 2 physics model (NetworkPhysics + HyperliquidValidator)")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging for physics mode")
+
     args = parser.parse_args()
-    run_simulation_auto(args)
+
+    if args.physics:
+        run_simulation_physics(args)
+    else:
+        run_simulation_auto(args)

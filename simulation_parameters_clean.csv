@@ -1,0 +1,30 @@
+Category,Parameter,Value,Description
+Network,Topology,Full Mesh (21 nodes),All validators connected
+Network,Regions,"3 (US, EU, APAC)",Geographically distributed
+Network,Nodes per Region,7,Evenly distributed
+Network,Latency (Intra-region),5-20 ms,Low latency within same region
+Network,Latency (US <-> EU),80-120 ms,Trans-Atlantic
+Network,Latency (US <-> APAC),150-200 ms,Trans-Pacific
+Network,Latency (EU <-> APAC),100-150 ms,Europe-Asia
+Network,Dynamic Jitter,+/- 10%,Added to base latency
+Hyperliquid,Validator Count (N),21,Mainnet configuration
+Hyperliquid,Consensus Protocol,HyperBFT,Leader-based BFT with QC broadcast
+Hyperliquid,Quorum Size,15 (2/3 + 1),Byzantine fault tolerance
+Hyperliquid,QC Creation Time,10 ms,Leader processing time
+Hyperliquid,Polling Interval (mu),16.0 s,Validator RPC polling
+Hyperliquid,Polling Jitter (sigma),0.5 s,Gaussian distribution
+Hyperliquid,Sign Delay,10-50 ms,Local signature time
+Arbitrum,Deposit Detection,RPC Polling,Each validator polls independently
+Arbitrum,RPC Processing,5-15 ms,Arbitrum node response time
+Arbitrum Batcher,Buffer Logic,State Machine,simpy.Container based
+Arbitrum Batcher,Size Threshold,120 KB,Trigger batch post
+Arbitrum Batcher,Time Threshold,300 s (5 min),Max wait before post
+Arbitrum Batcher,TX Size,1500 bytes,Typical ERC20 transfer
+L1 Ethereum,Block Time,12.0 s,Slot time
+L1 Ethereum,Confirmations,2 blocks,For finality
+L1 Ethereum,Confirmation Delay,24.0 s,2 x Block Time
+Bridge,Dispute Period,200.0 s,Experimental (Mainnet: 7 days)
+Bridge,Relay Latency (mu),1.0 s,L1 -> L2 message
+Simulation,TX Count,1000,Per direction (Deposit/Withdraw)
+Simulation,TX Interval,0.2 s,Between consecutive TXs
+Simulation,Time Limit,1000 s,Simulation duration
