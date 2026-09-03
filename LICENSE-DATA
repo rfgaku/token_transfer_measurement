@@ -1,0 +1,16 @@
+The measurement data in this repository (everything under `result/`) is licensed
+under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+You are free to share and adapt the data for any purpose, provided you give
+appropriate credit:
+
+  G. Nagayoshi and A. Fujihara, "Latency as a Boundary Observable: Auditing and
+  Designing Cross-Chain Bridges from External Measurement," 2026.
+  Data: https://github.com/rfgaku/token_transfer_measurement
+
+Full license text: https://creativecommons.org/licenses/by/4.0/
+
+The data are derived from public blockchain records (Arbitrum One, Ethereum,
+Base, HyperEVM/HyperCore) and from transfers funded by the authors themselves.
+No personal data is included beyond on-chain addresses and transaction hashes
+that are already public.

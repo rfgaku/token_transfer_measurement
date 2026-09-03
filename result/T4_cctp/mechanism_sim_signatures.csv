@@ -1,0 +1,16 @@
+mechanism,mechanism_title,signature,obs_value,sim_median,ci_lo_2.5%,ci_hi_97.5%,verdict
+A,Error/retry with backoff,1. gap occupancy (conf 19-24 frac),0.01456,0.12136,0.08252,0.1699,FAIL
+A,Error/retry with backoff,2. slow-peak IQR (conf>=25),4.0,28.0,23.0,32.25,FAIL
+A,Error/retry with backoff,3. memorylessness (lag-1 autocorr),-0.01506,-0.0045,-0.14194,0.13297,MATCH
+A,Error/retry with backoff,4. covariate corr |r|,0.06002,0.04678,0.00219,0.15892,MATCH
+A,Error/retry with backoff,3b. runs test p-value,0.85964,0.49155,0.02492,0.97775,MATCH
+B,Memoryless binary target 64/36,1. gap occupancy (conf 19-24 frac),0.01456,0.00485,0.0,0.01456,MATCH
+B,Memoryless binary target 64/36,2. slow-peak IQR (conf>=25),4.0,3.25,2.0,4.5,MATCH
+B,Memoryless binary target 64/36,3. memorylessness (lag-1 autocorr),-0.01506,-0.00556,-0.14194,0.13228,MATCH
+B,Memoryless binary target 64/36,4. covariate corr |r|,0.06002,0.0474,0.00199,0.16018,MATCH
+B,Memoryless binary target 64/36,3b. runs test p-value,0.85964,0.49586,0.02567,0.97206,MATCH
+C,Chain-state adaptive (load-coupled),1. gap occupancy (conf 19-24 frac),0.01456,0.00485,0.0,0.01456,MATCH
+C,Chain-state adaptive (load-coupled),2. slow-peak IQR (conf>=25),4.0,3.5,2.0,4.75,MATCH
+C,Chain-state adaptive (load-coupled),3. memorylessness (lag-1 autocorr),-0.01506,0.75613,0.59821,0.89426,FAIL
+C,Chain-state adaptive (load-coupled),4. covariate corr |r|,0.06002,0.76232,0.67504,0.82752,FAIL
+C,Chain-state adaptive (load-coupled),3b. runs test p-value,0.85964,0.0,0.0,0.0,FAIL
