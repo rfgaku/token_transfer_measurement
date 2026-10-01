@@ -77,6 +77,8 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 | `t4_cctp/analysis/finality_gap.py` | `result/T4_cctp/finality_timeline.csv` | superseded by `result/batch_refix/` |
 | `experiments/t1_deposit_finality_gap.py` | `result/deposit_t1_l1_enriched.csv`, `deposit_t1_G_hist.png`, `deposit_t1_G_summary.md` | superseded by `result/batch_refix/` |
 | `experiments/native_bridge_stats.py` | printed statistics | Sec. 4.1.1, Sec. 4.2.1 (N and its CI, Fig. 7), Sec. 4.4.1, Table 5 |
+| `experiments/dispute_window_census.py` | printed statistics | Sec. 4.1.1, Sec. 4.4.1 (required dispute-window length by exceedance probability), Table 5 (lower withdraw row), Sec. 4.4.4 |
+| `experiments/cctp_inflow.py` | printed statistics | Sec. 3.8, Sec. 4.4.3 (value inflow and Eq. 13), Appendix C |
 
 The three simulation scripts use fixed random seeds and reproduce their outputs
 bit for bit from the CSVs in this repository. Conceptual figures (Fig. 1-4, 13,
@@ -99,8 +101,9 @@ Requires Python 3.10+ with `web3`, `eth-account`, `requests`, `websockets`,
 `t4_cctp/SCHEMA.md` defines every column of the two CCTP result CSVs. Three
 columns carry names that do not match the interval naming used in the paper, one
 quantity has been recomputed since the earlier release, and one column is a
-corrected series that the paper does not use; all three are recorded here so that
-the published numbers can be traced without re-deriving them.
+corrected series that the paper does not use; all three are recorded here,
+together with how the Appendix C observation windows are timed, so that the
+published numbers can be traced without re-deriving them.
 
 ### 4.1 CCTP columns whose name differs from the paper's interval
 
@@ -152,11 +155,20 @@ HyperBFT finality and uses no batch matching.
 
 ### 4.3 Native-bridge withdraw latency
 
-The `latency(ms)` column of `result/withdraw_latency.csv` is clock-offset
-corrected and is not used in the paper. The paper uses the uncorrected latency
+The `latency(ms)` column of `result/withdraw_latency.csv` differs from the
+uncorrected latency in 5 of 117 rows (by up to 1.7 s; mean difference 0.06 s) and
+is not used in the paper. The paper uses the uncorrected latency
 `arb_block_timestamp(ms) − local_broadcast_time(ns)/1e6` (Sec. 3.3) and excludes
-experiment_id 16 (152.8 s, which is impossible under the 200 s dispute window;
+experiment_id 16 (152.8 s, impossible under the 200 s dispute window;
 Sec. 4.1.1), leaving n = 116.
+
+### 4.4 Appendix C observation windows
+
+Each window spans a fixed number of blocks per chain (Arbitrum 50,000, Base
+12,000, Ethereum 3,000), so the total observed time differs by chain (about
+24.3 h, 46.5 h and 69.9 h). Arrival rates and value inflow are computed per chain
+and then summed (`experiments/cctp_inflow.py`); the pooled row of Table C.1 is a
+plain sum of counts and values.
 
 ## 5. Environment variables
 
