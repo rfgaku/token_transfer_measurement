@@ -1,3 +1,5 @@
+> **Superseded.** Values in this file use the earlier t_safe heuristic. Current values: result/batch_refix/ (see README §4.2).
+
 # T1 (Native Bridge) deposit — 露出窓 G の再構成
 
 生成: `t1_deposit_finality_gap.py` / 2026-07-30T14:10:29

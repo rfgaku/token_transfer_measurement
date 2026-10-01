@@ -1,0 +1,94 @@
+
+===== run 2026-10-01T13:29:28 (probe=True sample=None) =====
+[env] ARBITRUM_HTTP_RPC set=True  ETH_RPC_URL set=False (値はログに出さない)
+=== probe: selector / event ABI / endpoint ===
+[abi] selector findBatchContainingBlock(uint64) = 0x81f1adaf (expect 0x81f1adaf) match=True
+[arb] endpoints = ['<env:ARBITRUM_HTTP_RPC>', '<env:ARBITRUM_HTTP_RPC>', 'https://arbitrum-one-rpc.publicnode.com', 'https://arbitrum.drpc.org']
+[arb] latest L2 block = 510554195
+[arb] findBatchContainingBlock(469169954) = 1258392
+[arb] findBatchContainingBlock(404580282) = 1081809
+[l1 ] log endpoints = ['https://mainnet.gateway.tenderly.co', 'https://gateway.tenderly.co/public/mainnet']
+[l1 ] sample getLogs n=9
+[l1 ] topics=4 topic1(uint256)=1258387 blk=25227532 tx=0x41ab5aa5067214a3607abd87e7e98c4c70e53ecbae8582196b489bd8cb01dc8d
+[l1 ] → topic1 = indexed batchSequenceNumber (3 indexed params) を実ログで確認
+
+===== run 2026-10-01T13:29:47 (probe=False sample=5) =====
+[env] ARBITRUM_HTTP_RPC set=True  ETH_RPC_URL set=False (値はログに出さない)
+[in] cctp=210 native=117 total=327
+[in] result/T4_cctp/deposit_cctp_latency.csv / result/T4_cctp/finality_timeline.csv / result/deposit_latency.csv / result/deposit_t1_l1_enriched.csv
+[in] SAMPLE mode → 10 rows
+[phase1] findBatchContainingBlock for 10 unique L2 blocks
+  [phase1] 1/10 (calls=1 cache=0)
+[phase1] done: unique batch_seq=9 (range 1081809..1261409)  4s
+[phase2a] merged windows = 4 intervals, 4551 L1 blocks (per-transfer window = old_l1_block -50..+1000)
+  [sweep 1/4] L1 [23888364..23889414] logs=172 map=172 (4s)
+  [sweep 2/4] L1 [23896829..23897894] logs=160 map=332 (5s)
+  [sweep 3/4] L1 [25227528..25228578] logs=111 map=443 (6s)
+  [sweep 4/4] L1 [25248585..25249967] logs=287 map=730 (7s)
+[phase2a] seq->L1 map size = 730
+[phase2b] seq not found in merged sweep: 0
+[phase3] eth_getBlockByNumber for 9 unique L1 blocks
+[phase3] complete rows = 10/10   11s
+[check] findBatchContainingBlock at block-1 / block / block+1
+  id=4(cctp) blk=470199195: 1261399 / 1261399 / 1261399
+  id=1(native) blk=404580282: 1081809 / 1081809 / 1081809
+  id=4(native) blk=404992013: 1082951 / 1082951 / 1082951
+SAMPLE only — no files written
+[stats] {'rpc_calls': 32, 'retries': 0, 'failover': 0, 'chunk_shrinks': 0, 'fbcb_calls': 19, 'getlogs_calls': 4, 'getblock_calls': 9, 'cache_hits': 0}
+  cctp   id=  1 blk=469169954 seq=1258392 old_l1=25227578 new_l1=25227592 old_ts=1780377743 new_ts=1780377911 t1=1780377727 err=
+  cctp   id=  2 blk=470186616 seq=1261362 old_l1=25248635 new_l1=25248641 old_ts=1780631771 new_ts=1780631843 t1=1780631760 err=
+  cctp   id=  3 blk=470195903 seq=1261391 old_l1=25248830 new_l1=25248830 old_ts=1780634123 new_ts=1780634123 t1=1780634077 err=
+  cctp   id=  4 blk=470199195 seq=1261399 old_l1=25248903 new_l1=25248903 old_ts=1780634999 new_ts=1780634999 t1=1780634901 err=
+  cctp   id=  5 blk=470202575 seq=1261409 old_l1=25248967 new_l1=25248967 old_ts=1780635767 new_ts=1780635767 t1=1780635747 err=
+  native id=  1 blk=404580282 seq=1081809 old_l1=23888414 new_l1=23888421 old_ts=1764226679 new_ts=1764226763 t1=1764226668 err=
+  native id=  2 blk=404991447 seq=1082950 old_l1=23896879 new_l1=23896888 old_ts=1764329339 new_ts=1764329447 t1=1764329337 err=
+  native id=  3 blk=404991840 seq=1082951 old_l1=23896888 new_l1=23896894 old_ts=1764329447 new_ts=1764329519 t1=1764329435 err=
+  native id=  4 blk=404992013 seq=1082951 old_l1=23896894 new_l1=23896894 old_ts=1764329519 new_ts=1764329519 t1=1764329479 err=
+  native id=  5 blk=404992149 seq=1082952 old_l1=23896894 new_l1=23896901 old_ts=1764329519 new_ts=1764329603 t1=1764329513 err=
+
+===== run 2026-10-01T13:30:14 (probe=False sample=None) =====
+[env] ARBITRUM_HTTP_RPC set=True  ETH_RPC_URL set=False (値はログに出さない)
+[cache] loaded fbcb=10 from fbcb_cache.json
+[in] cctp=210 native=117 total=327
+[in] result/T4_cctp/deposit_cctp_latency.csv / result/T4_cctp/finality_timeline.csv / result/deposit_latency.csv / result/deposit_t1_l1_enriched.csv
+[phase1] findBatchContainingBlock for 327 unique L2 blocks
+  [phase1] 1/327 (calls=0 cache=1)
+  [phase1] 50/327 (calls=45 cache=5)
+  [phase1] 100/327 (calls=95 cache=5)
+  [phase1] 150/327 (calls=140 cache=10)
+  [phase1] 200/327 (calls=190 cache=10)
+  [phase1] 250/327 (calls=240 cache=10)
+  [phase1] 300/327 (calls=290 cache=10)
+[phase1] done: unique batch_seq=269 (range 1081809..1267629)  121s
+[phase2a] merged windows = 15 intervals, 68103 L1 blocks (per-transfer window = old_l1_block -50..+1000)
+  [sweep 1/15] L1 [23888364..23889414] logs=172 map=172 (122s)
+  [sweep 2/15] L1 [23896829..23898419] logs=247 map=419 (123s)
+  [sweep 3/15] L1 [23903995..23905627] logs=178 map=597 (123s)
+  [sweep 4/15] L1 [23910103..23911990] logs=327 map=924 (125s)
+  [sweep 5/15] L1 [23923464..23924527] logs=249 map=1173 (126s)
+  [sweep 6/15] L1 [23930562..23932377] logs=295 map=1468 (127s)
+  [sweep 7/15] L1 [23936789..23938764] logs=495 map=1963 (128s)
+  [sweep 8/15] L1 [23940202..23941292] logs=226 map=2189 (129s)
+  [sweep 9/15] L1 [23944151..23945212] logs=267 map=2456 (130s)
+  [sweep 10/15] L1 [23950337..23951417] logs=244 map=2700 (131s)
+  [sweep 11/15] L1 [23959675..23960733] logs=248 map=2948 (132s)
+  [sweep 12/15] L1 [23965663..23967513] logs=338 map=3286 (133s)
+  [sweep 13/15] L1 [25227528..25228578] logs=111 map=3397 (133s)
+  [sweep 14/15] L1 [25248585..25289303] logs=5290 map=8687 (142s)
+  [sweep 15/15] L1 [25291929..25301098] logs=856 map=9543 (143s)
+[phase2a] seq->L1 map size = 9543
+[phase2b] seq not found in merged sweep: 0
+[phase3] eth_getBlockByNumber for 266 unique L1 blocks
+  [phase3] 50/266
+  [phase3] 100/266
+  [phase3] 150/266
+  [phase3] 200/266
+  [phase3] 250/266
+[phase3] complete rows = 327/327   268s
+[check] findBatchContainingBlock at block-1 / block / block+1
+  id=122(cctp) blk=471526835: 1265350 / 1265350 / 1265350
+  id=165(cctp) blk=472014034: 1266326 / 1266326 / 1266326
+  id=185(cctp) blk=472388309: 1267098 / 1267098 / 1267098
+WROTE batch_refix.csv (327 rows)
+WROTE summary.txt
+[done] 272s stats={'rpc_calls': 613, 'retries': 0, 'failover': 0, 'chunk_shrinks': 0, 'fbcb_calls': 326, 'getlogs_calls': 21, 'getblock_calls': 266, 'cache_hits': 10}

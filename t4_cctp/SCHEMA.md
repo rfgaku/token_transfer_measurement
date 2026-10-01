@@ -1,7 +1,6 @@
 # T4 CCTP 測定 CSV スキーマ（解析・論文の基礎資料）
 
-最終更新 2026-06-04。正本：本ファイル。方針決定の経緯は `t4_cctp/DECISIONS.md`、設計は
-`t4_cctp/deposit/T4_CCTP_deposit_spec_v3.md`。
+最終更新 2026-06-04。CCTP 測定 CSV の列定義の正本。
 
 対象 CSV:
 - deposit: `result/T4_cctp/deposit_cctp_latency.csv`（31列）
@@ -124,7 +123,7 @@
 
 ---
 
-## 4. E2E の 2 軸と T1 との対応【決定 2026-06-04・DECISIONS.md】
+## 4. E2E の 2 軸と T1 との対応【決定 2026-06-04】
 
 | 軸 | 列（dep / wit） | 式 | 役割 | skew |
 |---|---|---|---|---|
@@ -152,7 +151,7 @@
 **発動判別**: `t2_iris_complete_local < t2_iris_attestation_complete`（＝生検知 > mint時刻）なら**クランプ発動**。
 発動時は `attestation_to_mint == 0`、`iris_wait == (mint − t1)`（= 上界）。
 
-**分析時の扱い（DECISIONS.md / spec §8）**: 発動行も**全件保持**。発動行は**打ち切り（censored）**データ：
+**分析時の扱い**: 発動行も**全件保持**。発動行は**打ち切り（censored）**データ：
 `iris_wait` は真の信頼層レイテンシの**上界**、`attestation_to_mint=0` は relay≈0 の上界。
 生存時間解析 S(t)・打ち切り対応推定（Kaplan–Meier 等）と整合。**再試行ロジックは入れない**。
 

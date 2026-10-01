@@ -90,3 +90,9 @@ experiments/experiment_*.py
 experiments/generate_*.py
 experiments/insert_figures.py
 experiments/run_sim_*.py
+
+# Published exceptions: exact batch matching artefacts (result/batch_refix/)
+!result/batch_refix/summary.txt
+!result/batch_refix/run.log
+!result/batch_refix/console.log
+!result/batch_refix/fbcb_cache.json
