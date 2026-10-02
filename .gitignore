@@ -96,3 +96,7 @@ experiments/run_sim_*.py
 !result/batch_refix/run.log
 !result/batch_refix/console.log
 !result/batch_refix/fbcb_cache.json
+
+# Published exceptions: Bridge2 parameter check (result/bridge2_params/)
+!result/bridge2_params/*.txt
+!result/bridge2_params/*.log

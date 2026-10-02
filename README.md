@@ -79,6 +79,7 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 | `experiments/native_bridge_stats.py` | printed statistics | Sec. 4.1.1, Sec. 4.2.1 (N and its CI, Fig. 7), Sec. 4.4.1, Table 5 |
 | `experiments/dispute_window_census.py` | printed statistics | Sec. 4.1.1, Sec. 4.4.1 (required dispute-window length by exceedance probability), Table 5 (lower withdraw row), Sec. 4.4.4 |
 | `experiments/cctp_inflow.py` | printed statistics | Sec. 3.8, Sec. 4.4.3 (value inflow and Eq. 13), Appendix C |
+| `experiments/bridge2_params.py`, `experiments/bridge2_change_events.py` | `result/bridge2_params/` | Sec. 4.1.1 and Sec. 4.4.1 (disputePeriodSeconds = 200 s and blockDurationMillis = 350 ms; no change events since the start of measurement) |
 
 The three simulation scripts use fixed random seeds and reproduce their outputs
 bit for bit from the CSVs in this repository. Conceptual figures (Fig. 1-4, 13,

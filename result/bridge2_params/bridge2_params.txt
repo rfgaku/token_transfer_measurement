@@ -1,0 +1,46 @@
+Bridge2 address: 0x2df1c51e09aecf9cacb7bc98cb1742757f163df7
+address source: experiments/native_bridge_arrival_survey.py (L72-74, BRIDGE2 default / HL_DEPOSIT_BRIDGE_ADDRESS; .env value identical)
+selectors (keccak256 first 4 bytes):
+  disputePeriodSeconds() -> 0x0756183b
+  blockDurationMillis() -> 0x9d5bc9e1
+
+(1) 2025-11 min: block 404479991
+  disputePeriodSeconds() = FAILED   endpoint: -
+  blockDurationMillis() = FAILED   endpoint: -
+(2) 2025-11 max: block 408635712
+  disputePeriodSeconds() = FAILED   endpoint: -
+  blockDurationMillis() = FAILED   endpoint: -
+(3) 2026-06 min: block 473126673
+  disputePeriodSeconds() = FAILED   endpoint: -
+  blockDurationMillis() = FAILED   endpoint: -
+(4) latest (resolved block 510877521): block 510877521
+  disputePeriodSeconds() = 200   endpoint: <env:ARBITRUM_HTTP_RPC>
+  blockDurationMillis() = 350   endpoint: <env:ARBITRUM_HTTP_RPC>
+
+failed attempts: 18
+  (1) 2025-11 min disputePeriodSeconds() @ <env:ARBITRUM_HTTP_RPC>: {'code': -32000, 'message': 'missing trie node 91cd6d6b63c1c87d8e411d285c709f76801ce855272ce4a6fa7ab080867b6942 (path ) state 0x91cd6d6b63c1c87d8e411d285c709f76801ce855272ce4a6fa7ab080867b6942 is not 
+  (1) 2025-11 min disputePeriodSeconds() @ https://arbitrum-one-rpc.publicnode.com: {'code': -32602, 'message': 'Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode'}
+  (1) 2025-11 min disputePeriodSeconds() @ https://arbitrum.drpc.org: {'message': 'Unknown state. First available state is 1', 'code': 27}
+  (1) 2025-11 min blockDurationMillis() @ <env:ARBITRUM_HTTP_RPC>: {'code': -32000, 'message': 'missing trie node 91cd6d6b63c1c87d8e411d285c709f76801ce855272ce4a6fa7ab080867b6942 (path ) state 0x91cd6d6b63c1c87d8e411d285c709f76801ce855272ce4a6fa7ab080867b6942 is not 
+  (1) 2025-11 min blockDurationMillis() @ https://arbitrum-one-rpc.publicnode.com: {'code': -32602, 'message': 'Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode'}
+  (1) 2025-11 min blockDurationMillis() @ https://arbitrum.drpc.org: {'message': 'Unknown state. First available state is 1', 'code': 27}
+  (2) 2025-11 max disputePeriodSeconds() @ <env:ARBITRUM_HTTP_RPC>: {'code': -32000, 'message': 'historical state 8989ba783657dea3f3f1347645a168bfe55477a8ddb7232eea8dc5c312f5abd7 is not available'}
+  (2) 2025-11 max disputePeriodSeconds() @ https://arbitrum-one-rpc.publicnode.com: {'code': -32602, 'message': 'Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode'}
+  (2) 2025-11 max disputePeriodSeconds() @ https://arbitrum.drpc.org: {'message': 'Unknown state. First available state is 1', 'code': 27}
+  (2) 2025-11 max blockDurationMillis() @ <env:ARBITRUM_HTTP_RPC>: {'code': -32000, 'message': 'historical state 8989ba783657dea3f3f1347645a168bfe55477a8ddb7232eea8dc5c312f5abd7 is not available'}
+  (2) 2025-11 max blockDurationMillis() @ https://arbitrum-one-rpc.publicnode.com: {'code': -32602, 'message': 'Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode'}
+  (2) 2025-11 max blockDurationMillis() @ https://arbitrum.drpc.org: {'message': 'Unknown state. First available state is 1', 'code': 27}
+  (3) 2026-06 min disputePeriodSeconds() @ <env:ARBITRUM_HTTP_RPC>: {'code': -32000, 'message': 'missing trie node 84b95be22751e4ba7dba775fc4cb15f3964eeab2d632baf6055455a747ed2296 (path ) state 0x84b95be22751e4ba7dba775fc4cb15f3964eeab2d632baf6055455a747ed2296 is not 
+  (3) 2026-06 min disputePeriodSeconds() @ https://arbitrum-one-rpc.publicnode.com: {'code': -32602, 'message': 'Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode'}
+  (3) 2026-06 min disputePeriodSeconds() @ https://arbitrum.drpc.org: {'message': 'Unknown state. First available state is 1', 'code': 27}
+  (3) 2026-06 min blockDurationMillis() @ <env:ARBITRUM_HTTP_RPC>: {'code': -32000, 'message': 'missing trie node 84b95be22751e4ba7dba775fc4cb15f3964eeab2d632baf6055455a747ed2296 (path ) state 0x84b95be22751e4ba7dba775fc4cb15f3964eeab2d632baf6055455a747ed2296 is not 
+  (3) 2026-06 min blockDurationMillis() @ https://arbitrum-one-rpc.publicnode.com: {'code': -32602, 'message': 'Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode'}
+  (3) 2026-06 min blockDurationMillis() @ https://arbitrum.drpc.org: {'message': 'Unknown state. First available state is 1', 'code': 27}
+
+--- 補足（eth_call の代替ではなく、変更有無の確認。値の推測には使っていない） ---
+Bridge2 の ChangedDisputePeriodSeconds / ChangedBlockDurationMillis を eth_getLogs で走査（endpoint: <env:ARBITRUM_HTTP_RPC>）
+  測定期間〜latest (404479991..510877648): 0 件（走査完了）
+  陽性対照: 同手法で RequestedWithdrawal は 404479991..404480991 に 10 件返る
+  測定期間前 (0..404479990): ChangedDisputePeriodSeconds 1 件 @ block 155689376, newValue=200
+                             ChangedBlockDurationMillis 0 件
+  → 測定開始以降、両パラメータを変更するイベントは発行されていない（スクリプト: bridge2_change_events.py, ログ: bridge2_change_events*.log）
