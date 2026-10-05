@@ -63,14 +63,14 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 |---|---|---|
 | `deposit_latency_measure.py` | `result/deposit_latency.csv` | Fig. 5a, Table 3, Table 5, Table 6 |
 | `withdraw_latency_measure.py` | `result/withdraw_latency.csv` | Fig. 5b, Table 5, Table 6 |
-| `t4_cctp/deposit/deposit_cctp_measure.py` | `result/T4_cctp/deposit_cctp_latency.csv` | Fig. 6a, Fig. 8, Fig. 9, Table 6, Appendix A |
+| `t4_cctp/deposit/deposit_cctp_measure.py` | `result/T4_cctp/deposit_cctp_latency.csv` | Fig. 6a, Fig. 8, Fig. 9, Table 6 |
 | `t4_cctp/withdraw/withdraw_cctp_measure.py` | `result/T4_cctp/withdraw_cctp_latency.csv` | Fig. 6b, Table 4, Table 6 |
 | `t4_cctp/scheduler/scheduler.py` | drives the two scripts above | Sec. 3, measurement protocol |
 | `t4_cctp/analysis/congestion_probe.py` | `result/T4_cctp/congestion_enriched.csv` | Fig. 9a |
 | `result/batch_refix/refix_batch.py` | `result/batch_refix/batch_refix.csv`, `summary.txt` | exact *t*<sub>safe</sub> behind Fig. 10, Fig. 11, the *G* row of Table 6 |
 | `experiments/g_reconstruction.py` | `result/batch_refix/g_reconstruction.csv` | *G* and *τ*<sub>F</sub> for Fig. 10, Fig. 11, Table 6 |
-| `t4_cctp/mechanism_sim/mechanism_sim.py` | `result/T4_cctp/mechanism_sim_signatures.csv`, `mechanism_sim_figure.png` | Table B.1, Fig. B.1, Appendix B |
-| `t4_cctp/queueing_sim/queueing_sim.py` | `result/T4_cctp/queueing_sim_v2_fig1_pooled.png`, `queueing_sim_v2_fig2_dedicated.png`, `queueing_sim_v2_results.csv` | Fig. 12, Appendix D |
+| `t4_cctp/mechanism_sim/mechanism_sim.py` | `result/T4_cctp/mechanism_sim_signatures.csv`, `mechanism_sim_figure.png` | Table A.1, Fig. A.1, Appendix A |
+| `t4_cctp/queueing_sim/queueing_sim.py` | `result/T4_cctp/queueing_sim_v2_fig1_pooled.png`, `queueing_sim_v2_fig2_dedicated.png`, `queueing_sim_v2_results.csv` | Fig. 12, Appendix C |
 | `t4_cctp/svb_stress/svb_stress_analysis.py` | `result/T4_cctp/svb_stress_multipliers.csv`, `svb_stress_figure.png` | Sec. 4.4.4, settlement-layer stress multipliers |
 | `experiments/native_bridge_arrival_survey.py` | `result/native_bridge_survey/*.csv` | Sec. 4.4.4, arrival rates |
 | `t4_cctp/analysis/enrich_l1.py` | `result/T4_cctp/deposit_l1_enriched.csv` | input to the earlier *t*<sub>safe</sub> matching (superseded; Sec. 4.2 below) |
@@ -78,20 +78,21 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 | `experiments/t1_deposit_finality_gap.py` | `result/deposit_t1_l1_enriched.csv`, `deposit_t1_G_hist.png`, `deposit_t1_G_summary.md` | superseded by `result/batch_refix/` |
 | `experiments/native_bridge_stats.py` | printed statistics | Sec. 4.1.1, Sec. 4.2.1 (N and its CI, Fig. 7), Sec. 4.4.1, Table 5 |
 | `experiments/dispute_window_census.py` | printed statistics | Sec. 4.1.1, Sec. 4.4.1 (required dispute-window length by exceedance probability), Table 5 (lower withdraw row), Sec. 4.4.4 |
-| `experiments/cctp_inflow.py` | printed statistics | Sec. 3.8, Sec. 4.4.3 (value inflow and Eq. 13), Appendix C |
+| `experiments/cctp_inflow.py` | printed statistics | Sec. 3.8, Sec. 4.4.3 (value inflow and Eq. 13), Appendix B |
 | `experiments/bridge2_params.py`, `experiments/bridge2_change_events.py` | `result/bridge2_params/` | Sec. 4.1.1 and Sec. 4.4.1 (disputePeriodSeconds = 200 s and blockDurationMillis = 350 ms; no change events since the start of measurement) |
+| `experiments/c1_rejection_by_confirmations.py` | printed statistics | Sec. 3.8, Sec. 4.4.4 (rejection of c = 1 from the confirmation-count distribution), Appendix C (detection limit and occupancy threshold) |
+| `experiments/amount_linked_protection.py` | printed statistics | Sec. 5.3 (2), Fig. 15 |
 
 The three simulation scripts use fixed random seeds and reproduce their outputs
 bit for bit from the CSVs in this repository. Conceptual figures (Fig. 1-4, 13,
-14) were drawn by hand. Appendix A is analytical and needs no script: it uses the
-`iris_wait(ms)` and `arb_confirmations_at_attestation(blocks)` columns of
-`result/T4_cctp/deposit_cctp_latency.csv` only.
+14) were drawn by hand.
 
 No plotting script is included for Fig. 5, Fig. 6, Fig. 7, Fig. 8, Fig. 9b or
 Fig. 15; the underlying data is published here, and the numbers in Fig. 5 and
 Fig. 7 are reproduced by `native_bridge_stats.py` (bootstrap interval endpoints
-may differ by ±0.1 from the printed values owing to resampling).
-`result/T4_cctp/cctp_fast_standard_events.csv` (the Appendix C census, and the
+may differ by ±0.1 from the printed values owing to resampling) and those in
+Fig. 15 by `amount_linked_protection.py`.
+`result/T4_cctp/cctp_fast_standard_events.csv` (the Appendix B census, and the
 source of Fig. 15) is likewise published as data without its collector.
 
 Requires Python 3.10+ with `web3`, `eth-account`, `requests`, `websockets`,
@@ -103,7 +104,7 @@ Requires Python 3.10+ with `web3`, `eth-account`, `requests`, `websockets`,
 columns carry names that do not match the interval naming used in the paper, one
 quantity has been recomputed since the earlier release, and one column is a
 corrected series that the paper does not use; all three are recorded here,
-together with how the Appendix C observation windows are timed, so that the
+together with how the Appendix B observation windows are timed, so that the
 published numbers can be traced without re-deriving them.
 
 ### 4.1 CCTP columns whose name differs from the paper's interval
@@ -163,12 +164,12 @@ is not used in the paper. The paper uses the uncorrected latency
 experiment_id 16 (152.8 s, impossible under the 200 s dispute window;
 Sec. 4.1.1), leaving n = 116.
 
-### 4.4 Appendix C observation windows
+### 4.4 Appendix B observation windows
 
 Each window spans a fixed number of blocks per chain (Arbitrum 50,000, Base
 12,000, Ethereum 3,000), so the total observed time differs by chain (about
 24.3 h, 46.5 h and 69.9 h). Arrival rates and value inflow are computed per chain
-and then summed (`experiments/cctp_inflow.py`); the pooled row of Table C.1 is a
+and then summed (`experiments/cctp_inflow.py`); the pooled row of Table B.1 is a
 plain sum of counts and values.
 
 ## 5. Environment variables

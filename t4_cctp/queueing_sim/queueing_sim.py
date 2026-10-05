@@ -406,8 +406,10 @@ def write_summary(fast, slow, ES, ES2, SCV, info, lam_arb, lam_3chain,
              "$E[N_\\text{in-flight}] = \\lambda\\,E[S]$:")
     L.append(f"- λ_arb: E[N_in-flight] = {lam_arb:.5f} × {ES:.3f} = **{n_inflight['arb']:.3f}**")
     L.append(f"- λ_3chain: E[N_in-flight] = {lam_3chain:.5f} × {ES:.3f} = **{n_inflight['3chain']:.3f}**\n")
-    L.append("実測には待ち行列の痕跡が無い（slow 群残差は fast 群と同一・混雑指標と無相関）。"
-             f"検出限界を **W_q > {DETECT_LIMIT_S}s なら slow 残差に現れたはず**と置き、"
+    L.append("待ちは回帰の残差ではなく、署名時点の確認数の増加として現れる"
+             "（待つ間にも Arbitrum のブロックは進む）。待ちの有無は確認数の分布の比較で判定する"
+             "（experiments/c1_rejection_by_confirmations.py）。"
+             f"本表では目安として W_q < {DETECT_LIMIT_S}s を置き、"
              f"実測レートで $W_q(\\lambda_\\text{{real}}, c) < {DETECT_LIMIT_S}$s を満たす"
              "最小 c を下界として報告する。\n")
     L.append("| c | ρ (arb) | W_q (arb) [s] | ρ (3ch) | W_q (3ch) [s] |")
@@ -425,9 +427,10 @@ def write_summary(fast, slow, ES, ES2, SCV, info, lam_arb, lam_3chain,
     L.append(f"- **容量下界**: λ_arb では W_q<{DETECT_LIMIT_S}s を満たす最小 c = "
              f"**{c_lower['arb']}** → 実効並列度 **c ≥ {c_lower['arb']}**。")
     L.append(f"  λ_3chain では最小 c = **{c_lower['3chain']}** → **c ≥ {c_lower['3chain']}**。")
-    L.append("  すなわち c=1（単一直列サーバ）なら slow 残差に有意な追加待ちが観測された"
-             "はずだが、実測にそれが無いことから、パイプラインの律速段は**逐次 1 段ではなく"
-             "少なくとも複数並列**であることが下から言える。\n")
+    L.append("  すなわち c=1（単一直列サーバ）なら待ちが署名時点の確認数を押し上げ、"
+             "確認数の分布が実測と両立しなくなる（確認数の分布の比較による判定は "
+             "experiments/c1_rejection_by_confirmations.py）。このことから、パイプラインの律速段は"
+             "**逐次 1 段ではなく少なくとも複数並列**であることが下から言える。\n")
 
     L.append("## 4. (b) 臨界スループットの掃引\n")
     L.append(f"c ∈ {{{', '.join(map(str, C_LIST))}}} について λ を掃引し、$W_q$ が "
