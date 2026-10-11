@@ -43,6 +43,7 @@ experiments/
   t1_deposit_finality_gap.py    earlier G reconstruction, native bridge (superseded)
   native_bridge_arrival_survey.py   exhaustive native-bridge event survey
   native_bridge_stats.py        native-bridge fits, N, and tail risk metrics
+  validator_vote_census/        on-chain deposit votes (VoteEthDepositAction), 36 deposits
 
 result/
   deposit_latency.csv, withdraw_latency.csv        native bridge, n = 117 each
@@ -82,6 +83,7 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 | `experiments/bridge2_params.py`, `experiments/bridge2_change_events.py` | `result/bridge2_params/` | Sec. 4.1.1 and Sec. 4.4.1 (disputePeriodSeconds = 200 s and blockDurationMillis = 350 ms; no change events since the start of measurement) |
 | `experiments/c1_rejection_by_confirmations.py` | printed statistics | Sec. 3.8, Sec. 4.4.4 (rejection of c = 1 from the confirmation-count distribution), Appendix C (detection limit and occupancy threshold) |
 | `experiments/amount_linked_protection.py` | printed statistics | Sec. 5.3 (2), Fig. 15 |
+| `experiments/validator_vote_census/analysis_votes.py` | `results_votes.json`, `report_votes.md`, `per_deposit_votes.csv`, `figures/fig7a_vote_timeline.png`, `figures/fig7b_A_hist.png` | Sec. 4.2.1 (deposit voter set and the decomposition of deposit latency) |
 
 The three simulation scripts use fixed random seeds and reproduce their outputs
 bit for bit from the CSVs in this repository. Conceptual figures (Fig. 1-4, 13,
@@ -171,6 +173,73 @@ Each window spans a fixed number of blocks per chain (Arbitrum 50,000, Base
 24.3 h, 46.5 h and 69.9 h). Arrival rates and value inflow are computed per chain
 and then summed (`experiments/cctp_inflow.py`); the pooled row of Table B.1 is a
 plain sum of counts and values.
+
+### 4.5 Native-bridge deposit vote census
+
+**Purpose.** To observe the native bridge's deposit quorum directly, rather than infer
+it from latency. For each deposit we take from Hyperliquid L1 every
+`VoteEthDepositAction` whose `ethId.h` equals the Arbitrum transaction hash. Each vote
+is recorded as the signer (the outer `user` of the transaction), the L1 block and the
+block time. From these we rebuild the sequence *t*<sub>1</sub> (Arbitrum block) →
+individual votes → credit (*t*<sub>3</sub>).
+
+**Data source.** The Hyperliquid explorer RPC, `POST
+https://rpc.hyperliquid.xyz/explorer` with `{"type":"blockDetails","height":h}`.
+`hl_block_number` in `result/deposit_latency.csv` is a HyperEVM block number, not an L1
+height. The L1 credit block is therefore located as the L1 block whose `blockTime`
+equals `hl_ledger_time(ms)`; this matched to the millisecond in all collected deposits
+(`credit_blocks.csv`). The public S3 archive (`hl-mainnet-node-data`) was not used.
+
+**Coverage.** 36 of the 117 deposits, covering all 11 measurement days. Deposits were
+taken in a day-stratified round-robin order (`order.csv`) that includes the
+largest-latency deposit (#77). From the credit block, `fetch_votes.py` walks back block
+by block until 16 consecutive blocks contain no vote for the deposit; it never goes
+below the height of *t*<sub>1</sub>. For the 6 deposits whose credit block held no
+fourth vote, `post_credit_check.py` also reads the 15 blocks after the credit block.
+Signer activity in October 2026 was checked with one `userDetails` request per address
+(`cache/userDetails/`).
+
+**API constraints.** With a fixed 2.2 s interval and a flat 10 s pause after HTTP 429,
+the effective rate was about 9 blocks per minute (`rate_test.md`), against the nominal
+30 per minute. The explorer also enforces a daily cap on archived-block queries: it
+returns HTTP 200 with `{"type":"error","message":"More than 100 archived blocks queried
+in one day"}`. In practice the cap was reached after about 1,000 blocks in one day, and
+it recovered the next day. Collection of the remaining 81 deposits was stopped for this
+reason.
+
+**Raw blocks not included.** The fetched blocks (`cache/blocks/`, 1,161 gzip JSON files,
+86 MB) are not included. To rebuild them, run `fetch_votes.py` (resumable; it continues
+from `progress.csv`, so delete it together with `votes_raw.csv` and `credit_blocks.csv`
+for a full rebuild) and then `post_credit_check.py`. Expect several days because of the
+daily cap. The analysis itself needs only the CSVs published here: `python3
+analysis_votes.py`.
+
+**Main results** (`report_votes.md`, `results_votes.json`):
+- The voters are the same 4 addresses in all 36 deposits. None appears in the current
+  `validatorSummaries` (validator or signer). Three of the four were still casting
+  deposit votes in October 2026 (`identity_check.md`).
+- Every deposit is credited on its 3rd valid vote (N = 4, M = 3). *C* = *t*<sub>3</sub>
+  − 3rd vote = 0 in 36/36 deposits.
+- The 4th vote is rejected ("Deposit has already been credited."). It falls inside the
+  credit block in 30 deposits and 0.22–0.93 s after credit in the other 6. No other
+  address voted in the examined blocks.
+- *B* = 3rd vote − first vote: mean 0.24 s, max 1.45 s; 14 deposits have the first and
+  third vote in the same block.
+- *A* = first vote − *t*<sub>1</sub>: mean 9.84 s. Var(*A*)/Var(*L*) = 1.02 (36
+  deposits; 0.99 without #77) and Var(*B*)/Var(*L*) = 0.002. Almost all of the spread in
+  deposit latency is therefore common observation delay, not quorum competition.
+- Without #77, *A* = 8.74 ± 3.53 s (range 3.38–16.05 s, excess kurtosis -1.12). A
+  uniform distribution plus Gaussian noise fits with start 3.57 s, width 11.16 s, SD
+  1.01 s (log-likelihood -90.2). This beats Gumbel (-92.7) and log-normal (-92.5). The
+  noise SD is bounded below by 1/√12 s (1 s resolution of *t*<sub>1</sub>); without that
+  bound the maximum lies on the pure-uniform boundary (log-likelihood -88.9), and the
+  ranking is unchanged.
+
+**Correspondence with the paper.** Sec. 4.2.1 uses this census for the deposit voter set
+(N = 4, M = 3), for the decomposition of deposit latency into *A*, *B* and *C*, and for
+Fig. 7a (`figures/fig7a_vote_timeline.png`) and Fig. 7b (`figures/fig7b_A_hist.png`).
+The Markdown notes in this directory (`identity_check.md`, `status_summary.md`,
+`probe_result.md`, `rate_test.md`, `report_votes.md`) are working records in Japanese.
 
 ## 5. Environment variables
 

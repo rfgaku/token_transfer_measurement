@@ -1,0 +1,347 @@
+{
+ "n_deposits": 36,
+ "n_days": 11,
+ "voters": [
+  {
+   "validator": "0xda6816df552c3f9e0fb64979fb357800d690d79b",
+   "appearances": 36,
+   "rejected": 1,
+   "mean_rank": 2.055556
+  },
+  {
+   "validator": "0x58e1b0e63c905d5982324fcd9108582623b8132e",
+   "appearances": 36,
+   "rejected": 4,
+   "mean_rank": 2.333333
+  },
+  {
+   "validator": "0x263294039413b96d25e4173a5f7599f8b3801504",
+   "appearances": 36,
+   "rejected": 5,
+   "mean_rank": 2.805556
+  },
+  {
+   "validator": "0xef2364db5db6f5539aa0bc111771a94ee47637fc",
+   "appearances": 36,
+   "rejected": 26,
+   "mean_rank": 2.805556
+  }
+ ],
+ "n_distinct_voters": 4,
+ "every_deposit_has_same_4": true,
+ "valid_votes_per_deposit": {
+  "3": 36
+ },
+ "C_zero_count": 36,
+ "B": {
+  "mean_s": 0.244278,
+  "max_s": 1.453,
+  "sd_s": 0.293843,
+  "same_block_first_and_third": 14
+ },
+ "A": {
+  "mean_s": 9.837222,
+  "sd_s": 7.436017,
+  "min_s": 3.381,
+  "max_s": 48.188,
+  "max_exp": 77
+ },
+ "L": {
+  "mean_s": 9.570337,
+  "sd_s": 7.35125
+ },
+ "variance_ratio": {
+  "A_over_L": 1.023195,
+  "B_over_L": 0.001598,
+  "A_over_L_excl_max": 0.992712,
+  "C_over_L": 0.0,
+  "t1_minus_t0_over_L": 0.007567
+ },
+ "corr_t1t0_A": -0.289687,
+ "corr": {
+  "A_B": 0.225058,
+  "A_L": 0.995328,
+  "B_L": 0.272884
+ },
+ "A35": {
+  "n": 35,
+  "mean_s": 8.741486,
+  "sd_s": 3.525109,
+  "min_s": 3.381,
+  "max_s": 16.053,
+  "skew": 0.270598,
+  "excess_kurtosis": -1.115452,
+  "skew_unbiased": 0.282868,
+  "excess_kurtosis_unbiased": -1.099729,
+  "fits": {
+   "uniform_plus_normal": {
+    "start_s": 3.572198,
+    "width_s": 11.162411,
+    "sd_s": 1.012109,
+    "loglik": -90.192427,
+    "k": 3,
+    "sd_floor_s": 0.288675,
+    "sd_at_floor": false,
+    "boundary_pure_uniform": {
+     "start_s": 3.381,
+     "width_s": 12.672,
+     "loglik": -88.878819,
+     "k": 2
+    },
+    "aic": 186.384854
+   },
+   "gumbel_r": {
+    "params": [
+     7.061114,
+     2.933508
+    ],
+    "loglik": -92.715665,
+    "k": 2,
+    "aic": 189.43133
+   },
+   "lognorm": {
+    "params": [
+     0.314058,
+     -2.614066,
+     10.820306
+    ],
+    "loglik": -92.476465,
+    "k": 3,
+    "aic": 190.952929
+   },
+   "lognorm_loc0": {
+    "params": [
+     0.424931,
+     0.0,
+     8.024037
+    ],
+    "loglik": -92.594332,
+    "k": 2,
+    "aic": 189.188663
+   },
+   "norm": {
+    "params": [
+     8.741486,
+     3.474386
+    ],
+    "loglik": -93.252468,
+    "k": 2,
+    "aic": 190.504936
+   }
+  },
+  "ks_uniform_plus_normal": {
+   "D": 0.128992,
+   "p": 0.561359
+  }
+ },
+ "A36_fits": {
+  "uniform_plus_normal": {
+   "start_s": 2.929957,
+   "width_s": 45.59669,
+   "sd_s": 0.288675,
+   "loglik": -137.751208,
+   "k": 3,
+   "sd_floor_s": 0.288675,
+   "sd_at_floor": true,
+   "boundary_pure_uniform": {
+    "start_s": 3.381,
+    "width_s": 44.807,
+    "loglik": -136.885118,
+    "k": 2
+   },
+   "aic": 281.502415
+  },
+  "gumbel_r": {
+   "params": [
+    7.42643,
+    3.652071
+   ],
+   "loglik": -106.394792,
+   "k": 2,
+   "aic": 216.789584
+  },
+  "lognorm": {
+   "params": [
+    0.705649,
+    2.099333,
+    5.949681
+   ],
+   "loglik": -102.730976,
+   "k": 3,
+   "aic": 211.461951
+  },
+  "lognorm_loc0": {
+   "params": [
+    0.512191,
+    0.0,
+    8.43372
+   ],
+   "loglik": -103.75627,
+   "k": 2,
+   "aic": 211.51254
+  },
+  "norm": {
+   "params": [
+    9.837222,
+    7.332011
+   ],
+   "loglik": -122.802782,
+   "k": 2,
+   "aic": 249.605564
+  }
+ },
+ "fourth_vote": {
+  "in_credit_block": 30,
+  "after_credit": 6,
+  "after_credit_delay_min_s": 0.221,
+  "after_credit_delay_max_s": 0.928,
+  "missing": 0
+ },
+ "votes_from_outside_4_post_credit": 0,
+ "reference_check": [
+  {
+   "item": "C=0 の件数",
+   "computed": 36,
+   "expected": 36,
+   "match": true
+  },
+  {
+   "item": "B 平均 [s]",
+   "computed": 0.244278,
+   "expected": 0.24,
+   "match": true
+  },
+  {
+   "item": "B 最大 [s]",
+   "computed": 1.453,
+   "expected": 1.45,
+   "match": true
+  },
+  {
+   "item": "B 同一ブロック件数",
+   "computed": 14,
+   "expected": 14,
+   "match": true
+  },
+  {
+   "item": "A 平均 [s]",
+   "computed": 9.837222,
+   "expected": 9.84,
+   "match": true
+  },
+  {
+   "item": "分散比 A/L（36件）",
+   "computed": 1.023195,
+   "expected": 1.0,
+   "match": false
+  },
+  {
+   "item": "分散比 A/L（35件）",
+   "computed": 0.992712,
+   "expected": 1.0,
+   "match": true
+  },
+  {
+   "item": "分散比 B/L",
+   "computed": 0.001598,
+   "expected": 0.002,
+   "match": true
+  },
+  {
+   "item": "A35 平均 [s]",
+   "computed": 8.741486,
+   "expected": 8.74,
+   "match": true
+  },
+  {
+   "item": "A35 SD [s]",
+   "computed": 3.525109,
+   "expected": 3.53,
+   "match": true
+  },
+  {
+   "item": "A35 最小 [s]",
+   "computed": 3.381,
+   "expected": 3.38,
+   "match": true
+  },
+  {
+   "item": "A35 最大 [s]",
+   "computed": 16.053,
+   "expected": 16.05,
+   "match": true
+  },
+  {
+   "item": "A35 超過尖度",
+   "computed": -1.115452,
+   "expected": -1.12,
+   "match": true
+  },
+  {
+   "item": "一様+正規 開始 [s]",
+   "computed": 3.572198,
+   "expected": 3.57,
+   "match": true
+  },
+  {
+   "item": "一様+正規 幅 [s]",
+   "computed": 11.162411,
+   "expected": 11.16,
+   "match": true
+  },
+  {
+   "item": "一様+正規 SD [s]",
+   "computed": 1.012109,
+   "expected": 1.01,
+   "match": true
+  },
+  {
+   "item": "一様+正規 対数尤度",
+   "computed": -90.192427,
+   "expected": -90.2,
+   "match": true
+  },
+  {
+   "item": "Gumbel 対数尤度",
+   "computed": -92.715665,
+   "expected": -92.7,
+   "match": true
+  },
+  {
+   "item": "対数正規 対数尤度",
+   "computed": -92.476465,
+   "expected": -92.5,
+   "match": true
+  },
+  {
+   "item": "4票目 着金ブロック内",
+   "computed": 30,
+   "expected": 30,
+   "match": true
+  },
+  {
+   "item": "4票目 着金後の件数",
+   "computed": 6,
+   "expected": 6,
+   "match": true
+  },
+  {
+   "item": "4票目 着金後の最小遅れ [s]",
+   "computed": 0.221,
+   "expected": 0.22,
+   "match": true
+  },
+  {
+   "item": "4票目 着金後の最大遅れ [s]",
+   "computed": 0.928,
+   "expected": 0.93,
+   "match": true
+  },
+  {
+   "item": "4者以外の票",
+   "computed": 0,
+   "expected": 0,
+   "match": true
+  }
+ ]
+}
