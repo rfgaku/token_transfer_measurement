@@ -77,23 +77,27 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 | `t4_cctp/analysis/enrich_l1.py` | `result/T4_cctp/deposit_l1_enriched.csv` | input to the earlier *t*<sub>safe</sub> matching (superseded; Sec. 4.2 below) |
 | `t4_cctp/analysis/finality_gap.py` | `result/T4_cctp/finality_timeline.csv` | superseded by `result/batch_refix/` |
 | `experiments/t1_deposit_finality_gap.py` | `result/deposit_t1_l1_enriched.csv`, `deposit_t1_G_hist.png`, `deposit_t1_G_summary.md` | superseded by `result/batch_refix/` |
-| `experiments/native_bridge_stats.py` | printed statistics | Sec. 4.1.1, Sec. 4.2.1 (N and its CI, Fig. 7), Sec. 4.4.1, Table 5 |
+| `experiments/native_bridge_stats.py` | printed statistics | Sec. 4.1.1, Sec. 4.2.1 (N ≈ 10 from Eq. 5 and its CI), Sec. 4.4.1, Table 5 |
 | `experiments/dispute_window_census.py` | printed statistics | Sec. 4.1.1, Sec. 4.4.1 (required dispute-window length by exceedance probability), Table 5 (lower withdraw row), Sec. 4.4.4 |
 | `experiments/cctp_inflow.py` | printed statistics | Sec. 3.8, Sec. 4.4.3 (value inflow and Eq. 13), Appendix B |
 | `experiments/bridge2_params.py`, `experiments/bridge2_change_events.py` | `result/bridge2_params/` | Sec. 4.1.1 and Sec. 4.4.1 (disputePeriodSeconds = 200 s and blockDurationMillis = 350 ms; no change events since the start of measurement) |
 | `experiments/c1_rejection_by_confirmations.py` | printed statistics | Sec. 3.8, Sec. 4.4.4 (rejection of c = 1 from the confirmation-count distribution), Appendix C (detection limit and occupancy threshold) |
 | `experiments/amount_linked_protection.py` | printed statistics | Sec. 5.3 (2), Fig. 15 |
-| `experiments/validator_vote_census/analysis_votes.py` | `results_votes.json`, `report_votes.md`, `per_deposit_votes.csv`, `figures/fig7a_vote_timeline.png`, `figures/fig7b_A_hist.png` | Sec. 4.2.1 (deposit voter set and the decomposition of deposit latency) |
+| `experiments/validator_vote_census/analysis_votes.py` | `results_votes.json`, `report_votes.md`, `per_deposit_votes.csv`, `figures/fig7a_vote_timeline.png`, `figures/fig7b_A_hist.png` | Sec. 4.2.1, Fig. 7 (deposit voter set, decomposition of deposit latency, numbers in Fig. 7) |
 
 The three simulation scripts use fixed random seeds and reproduce their outputs
 bit for bit from the CSVs in this repository. Conceptual figures (Fig. 1-4, 13,
 14) were drawn by hand.
 
-No plotting script is included for Fig. 5, Fig. 6, Fig. 7, Fig. 8, Fig. 9b or
-Fig. 15; the underlying data is published here, and the numbers in Fig. 5 and
-Fig. 7 are reproduced by `native_bridge_stats.py` (bootstrap interval endpoints
-may differ by ±0.1 from the printed values owing to resampling) and those in
-Fig. 15 by `amount_linked_protection.py`.
+No plotting script is included for Fig. 5, Fig. 6, Fig. 8, Fig. 9b or Fig. 15;
+the underlying data is published here, and the numbers in Fig. 5 are reproduced
+by `native_bridge_stats.py` (bootstrap interval endpoints may differ by ±0.1 from
+the printed values owing to resampling) and those in Fig. 15 by
+`amount_linked_protection.py`.
+Fig. 7 is based on the vote data in `experiments/validator_vote_census/`: its
+numbers are printed by `analysis_votes.py`, and the figure in the paper was drawn
+by the authors from the same data. The value N ≈ 10 from Eq. (5) is produced by
+`native_bridge_stats.py`.
 `result/T4_cctp/cctp_fast_standard_events.csv` (the Appendix B census, and the
 source of Fig. 15) is likewise published as data without its collector.
 
@@ -200,7 +204,7 @@ Signer activity in October 2026 was checked with one `userDetails` request per a
 (`cache/userDetails/`).
 
 **API constraints.** With a fixed 2.2 s interval and a flat 10 s pause after HTTP 429,
-the effective rate was about 9 blocks per minute (`rate_test.md`), against the nominal
+the effective rate was about 9 blocks per minute, against the nominal
 30 per minute. The explorer also enforces a daily cap on archived-block queries: it
 returns HTTP 200 with `{"type":"error","message":"More than 100 archived blocks queried
 in one day"}`. In practice the cap was reached after about 1,000 blocks in one day, and
@@ -237,9 +241,11 @@ analysis_votes.py`.
 
 **Correspondence with the paper.** Sec. 4.2.1 uses this census for the deposit voter set
 (N = 4, M = 3), for the decomposition of deposit latency into *A*, *B* and *C*, and for
-Fig. 7a (`figures/fig7a_vote_timeline.png`) and Fig. 7b (`figures/fig7b_A_hist.png`).
-The Markdown notes in this directory (`identity_check.md`, `status_summary.md`,
-`probe_result.md`, `rate_test.md`, `report_votes.md`) are working records in Japanese.
+the numbers in Fig. 7. The figure in the paper was drawn by the authors from the same
+data; `figures/fig7a_vote_timeline.png` and `figures/fig7b_A_hist.png` are reference
+plots produced by `analysis_votes.py`. The Markdown notes in this directory
+(`identity_check.md`, `probe_result.md`, `report_votes.md`) are working records in
+Japanese.
 
 ## 5. Environment variables
 
