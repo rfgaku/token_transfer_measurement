@@ -84,6 +84,7 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 | `experiments/c1_rejection_by_confirmations.py` | printed statistics | Sec. 3.8, Sec. 4.4.4 (rejection of c = 1 from the confirmation-count distribution), Appendix C (detection limit and occupancy threshold) |
 | `experiments/amount_linked_protection.py` | printed statistics | Sec. 5.3 (2), Fig. 15 |
 | `experiments/validator_vote_census/analysis_votes.py` | `results_votes.json`, `report_votes.md`, `per_deposit_votes.csv`, `figures/fig7a_vote_timeline.png`, `figures/fig7b_A_hist.png` | Sec. 4.2.1, Fig. 7 (deposit voter set, decomposition of deposit latency, numbers in Fig. 7) |
+| `experiments/validator_vote_census/quorum_diagnosis.py` | printed statistics | Sec. 4.1.1 (uniform + normal, Gumbel and log-normal on 116 deposits), Sec. 4.2.1 (Eq. (5) and the quorum-time distribution, decomposition of deposit latency, order of the signers) |
 
 The three simulation scripts use fixed random seeds and reproduce their outputs
 bit for bit from the CSVs in this repository. Conceptual figures (Fig. 1-4, 13,
@@ -221,7 +222,9 @@ analysis_votes.py`.
 **Main results** (`report_votes.md`, `results_votes.json`):
 - The voters are the same 4 addresses in all 36 deposits. None appears in the current
   `validatorSummaries` (validator or signer). Three of the four were still casting
-  deposit votes in October 2026 (`identity_check.md`).
+  deposit votes in October 2026 (`identity_check.md`). The four coincide with the
+  Bridge2 hot validator set described by L2BEAT (four signers with equal power; a
+  request is accepted with signatures over two-thirds of the power).
 - Every deposit is credited on its 3rd valid vote (N = 4, M = 3). *C* = *t*<sub>3</sub>
   − 3rd vote = 0 in 36/36 deposits.
 - The 4th vote is rejected ("Deposit has already been credited."). It falls inside the
@@ -234,14 +237,28 @@ analysis_votes.py`.
   deposit latency is therefore common observation delay, not quorum competition.
 - Without #77, *A* = 8.74 ± 3.53 s (range 3.38–16.05 s, excess kurtosis -1.12). A
   uniform distribution plus Gaussian noise fits with start 3.57 s, width 11.16 s, SD
-  1.01 s (log-likelihood -90.2). This beats Gumbel (-92.7) and log-normal (-92.5). The
-  noise SD is bounded below by 1/√12 s (1 s resolution of *t*<sub>1</sub>); without that
-  bound the maximum lies on the pure-uniform boundary (log-likelihood -88.9), and the
-  ranking is unchanged.
+  1.01 s. By AIC it beats Gumbel and the two-parameter log-normal (186.4 against 189.4
+  and 189.2; `report_votes.md` also lists the three-parameter log-normal). The noise SD
+  is bounded below by 1/√12 s (1 s resolution of *t*<sub>1</sub>); without that bound the
+  maximum lies on the pure-uniform boundary, and the ranking is unchanged.
+- The order of the signers is not random: the first vote came from the same signer in
+  23 of the 36 deposits, and the rejected fourth vote from a second signer in 26
+  (chi-square against a random order, p = 6e-8 and 2e-9).
+- The exact quorum-time distribution of He and Fujihara (ICBC 2026, eq. (14)) fitted to
+  the 117 deposit latencies gives N = 8 (bootstrap 95% interval [7, 13]; 11 with
+  *t*<sub>3</sub> − *t*<sub>1</sub> as the reference, 12 without the largest
+  observation). The nominal configurations (N = 21, 24) predict a coefficient of
+  variation of 0.27–0.29 against the measured 0.55. With N = 4, M = 3, competition alone
+  would need a mean first-to-third-vote time of 7.4 s to explain the mean latency of the
+  36 deposits (9.6 s), against the measured 0.24 s. The shape of the deposit latency
+  therefore reflects the common observation wait, not the number of signers
+  (`quorum_diagnosis.py`).
 
 **Correspondence with the paper.** Sec. 4.2.1 uses this census for the deposit voter set
-(N = 4, M = 3), for the decomposition of deposit latency into *A*, *B* and *C*, and for
-the numbers in Fig. 7. The figure in the paper was drawn by the authors from the same
+(N = 4, M = 3), for the decomposition of deposit latency into *A*, *B* and *C*, for the
+order of the signers, for the diagnosis with the quorum-time distribution, and for the
+numbers in Fig. 7; Sec. 4.1.1 uses `quorum_diagnosis.py` for the model comparison on
+116 deposits. The figure in the paper was drawn by the authors from the same
 data; `figures/fig7a_vote_timeline.png` and `figures/fig7b_A_hist.png` are reference
 plots produced by `analysis_votes.py`. The Markdown notes in this directory
 (`identity_check.md`, `probe_result.md`, `report_votes.md`) are working records in
