@@ -85,6 +85,7 @@ wallet. Every measurement script defaults to a dry run and requires an explicit
 | `experiments/amount_linked_protection.py` | printed statistics | Sec. 5.3 (2), Fig. 15 |
 | `experiments/validator_vote_census/analysis_votes.py` | `results_votes.json`, `report_votes.md`, `per_deposit_votes.csv`, `figures/fig7a_vote_timeline.png`, `figures/fig7b_A_hist.png` | Sec. 4.2.1, Fig. 7 (deposit voter set, decomposition of deposit latency, numbers in Fig. 7) |
 | `experiments/validator_vote_census/quorum_diagnosis.py` | printed statistics | Sec. 4.1.1 (uniform + normal, Gumbel and log-normal on 116 deposits), Sec. 4.2.1 (Eq. (5) and the quorum-time distribution, decomposition of deposit latency, order of the signers) |
+| `experiments/validator_vote_census/coefficient_sensitivity.py` | printed statistics | Sec. 3.6, 4.2.1 (N under the single, parallel and PBFT broadcast coefficients; insensitivity of μ/η to the number of signers; sensitivity to the fixed part of the observation wait) |
 
 The three simulation scripts use fixed random seeds and reproduce their outputs
 bit for bit from the CSVs in this repository. Conceptual figures (Fig. 1-4, 13,
@@ -253,6 +254,16 @@ analysis_votes.py`.
   36 deposits (9.6 s), against the measured 0.24 s. The shape of the deposit latency
   therefore reflects the common observation wait, not the number of signers
   (`quorum_diagnosis.py`).
+- The coefficient that links μ/η to ln N depends on the communication structure of the
+  consensus (Fujihara, DLT: Research and Practice, 2025, doi:10.1145/3772080). The same
+  Gumbel fit gives N = 10.0 for a single broadcast (Eq. (5)), 3.2 (bootstrap 95% interval
+  [2.7, 3.8]) for a parallel broadcast, and 4.0 ([3.3, 5.0]) for one PBFT block. When the
+  competition among n signers is simulated with the measured per-signer speed, μ/η of
+  the latency stays within 1.91–1.94 for n = 4 to 100, whereas shifting the fixed part of
+  the observation wait by −3 to +10 s moves the Eq. (5) value from 2.9 to 93.4. The
+  shape therefore does not follow the number of signers under any coefficient
+  (`coefficient_sensitivity.py`; the interval of Eq. (5) in the paper, [7.3, 14.6], is
+  from `native_bridge_stats.py` with B = 10,000).
 
 **Correspondence with the paper.** Sec. 4.2.1 uses this census for the deposit voter set
 (N = 4, M = 3), for the decomposition of deposit latency into *A*, *B* and *C*, for the
