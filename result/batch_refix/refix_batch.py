@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-refix_batch.py  —  t_safe の厳密再対応づけ（ACM DLT 論文 / 露出窓 G 再構成）
+refix_batch.py  —  t_safe の厳密再対応づけ（露出窓 G 再構成）
 
 目的
 ----
@@ -95,7 +95,7 @@ TOPIC_BATCH = "0x7394f4a19a13c7b92b5bb71033245305946ef78452f7b4986ac1390b5df4ebd
 
 WIN_BACK, WIN_FWD = 50, 1000  # 旧バッチ L1 ブロックからの探索窓（task 指定）
 SWEEP_CHUNK = 8000            # topic0 スイープのチャンク幅（tenderly は 8k まで実測OK）
-UA = "Mozilla/5.0 (research; acm-dlt-batch-refix)"
+UA = "Mozilla/5.0 (research; batch-refix)"
 SLEEP = 0.05
 
 # ---- endpoint pools（env 由来 URL は値をログに出さない） ----
@@ -581,7 +581,7 @@ def describe(xs):
 def write_summary(rows, neighbor, windows, elapsed):
     L = []
     A = L.append
-    A("ACM DLT / 露出窓 G 再構成 — t_safe の厳密再対応づけ 整合性チェック")
+    A("露出窓 G 再構成 — t_safe の厳密再対応づけ 整合性チェック")
     A("=" * 78)
     A(f"生成       : refix_batch.py  {time.strftime('%Y-%m-%dT%H:%M:%S')}  ({elapsed:.0f}s)")
     A(f"方式       : Arbitrum NodeInterface({NODE_INTERFACE}).findBatchContainingBlock(uint64)")

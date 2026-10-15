@@ -3,8 +3,7 @@
 **Auditing and Designing Cross-Chain Bridges from External Measurement**
 
 Gaku Nagayoshi (Independent Researcher) and Akihiro Fujihara (Faculty of
-Engineering, Chiba Institute of Technology). Manuscript prepared for submission
-to *ACM Distributed Ledger Technologies: Research and Practice* (ACM DLT).
+Engineering, Chiba Institute of Technology).
 
 ## 1. Description
 
@@ -308,16 +307,7 @@ under `result/` are released under CC BY 4.0 ([`LICENSE-DATA`](LICENSE-DATA)).
 
 ## 7. Citation
 
-```bibtex
-@article{nagayoshi2026latency,
-  author  = {Nagayoshi, Gaku and Fujihara, Akihiro},
-  title   = {Latency as a Boundary Observable: Auditing and Designing
-             Cross-Chain Bridges from External Measurement},
-  journal = {ACM Distributed Ledger Technologies: Research and Practice},
-  year    = {2026},
-  note    = {Code and data: \url{https://github.com/rfgaku/token_transfer_measurement}}
-}
-```
+A citation entry will be added once the accompanying paper is published.
 
 These measurements characterise two bridges as they behaved during the
 observation windows above. They are not a security audit, not an endorsement and
